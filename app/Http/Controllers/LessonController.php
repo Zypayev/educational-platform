@@ -11,27 +11,35 @@ class LessonController extends Controller
 {
     public function show(Course $course, Lesson $lesson)
     {
-        // Check if the lesson actually belongs to this course
         if ($lesson->course_id !== $course->id) {
             abort(404);
         }
 
+        $user = auth()->user();
+        $completedIds = $user->completedLessons()->pluck('lesson_id');
+
         return Inertia::render('Lessons/Show', [
             'course' => $course,
             'lesson' => $lesson,
-            'allLessons' => $course->lessons()->orderBy('position')->get(),
-            // Check if the current user has completed this specific lesson
-            'isCompleted' => auth()->user()->completedLessons()->where('lesson_id', $lesson->id)->exists(),
+            'allLessons' => $course->lessons()
+                ->orderBy('position')
+                ->get()
+                ->map(fn($l) => [
+                    'id' => $l->id,
+                    'title' => $l->title,
+                    'slug' => $l->slug,
+                    'is_done' => $completedIds->contains($l->id),
+                ]),
+            'isCompleted' => $completedIds->contains($lesson->id),
             'comments' => $lesson->comments()->with('user:id,name')->get(),
         ]);
     }
 
     public function toggleComplete(Request $request, Lesson $lesson)
     {
-        // toggle() adds the record if it's missing, and removes it if it's already there
         $request->user()->completedLessons()->toggle($lesson->id);
 
-        return back(); // Inertia will refresh the data automatically
+        return redirect()->back();
     }
 
     public function storeComment(Request $request, Lesson $lesson)
