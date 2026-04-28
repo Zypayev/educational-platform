@@ -15,11 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
+        // Create a test user first if one doesn't exist
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Instructor User',
             'email' => 'test@example.com',
         ]);
+
+        \App\Models\Course::factory(5)
+            ->has(\App\Models\Lesson::factory()->count(10))
+            ->create(['user_id' => $user->id]);
     }
 }
