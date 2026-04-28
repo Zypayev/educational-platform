@@ -28,6 +28,13 @@ const submitComment = () => {
         onSuccess: () => commentForm.reset(),
     });
 };
+
+const markComplete = () => {
+    router.post(route('lessons.complete', props.lesson.slug), {}, {
+        preserveScroll: true,
+        only: ['isCompleted', 'allLessons'],
+    });
+};
 </script>
 
 <template>
@@ -48,32 +55,34 @@ const submitComment = () => {
             </svg>
         </button>
 
-        <div class="flex h-[calc(100vh-65px)] overflow-hidden">
-            <!-- Sidebar -->
+        <div class="flex min-h-screen">
+            <!-- Sidebar: sticky, scrolls independently -->
             <aside :class="[
                 isSidebarOpen ? 'block' : 'hidden',
-                'md:block w-full md:w-80 bg-white border-r border-gray-200 overflow-y-auto shrink-0'
+                'md:block w-full md:w-80 bg-white border-r border-gray-200 shrink-0'
             ]">
-                <div class="p-4 border-b border-gray-200 bg-gray-50">
-                    <h3 class="font-bold text-gray-700">{{ course.title }}</h3>
+                <div class="sticky top-0">
+                    <div class="p-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="font-bold text-gray-700">{{ course.title }}</h3>
+                    </div>
+                    <nav class="overflow-y-auto max-h-[calc(100vh-57px)]">
+                        <Link
+                            v-for="l in allLessons"
+                            :key="l.id"
+                            :href="route('lessons.show', [course.slug, l.slug])"
+                            class="flex justify-between items-center px-4 py-3 text-sm border-b border-gray-100 hover:bg-indigo-50 transition"
+                            :class="l.id === lesson.id ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-gray-700'"
+                            @click="isSidebarOpen = false"
+                        >
+                            <span>{{ l.title }}</span>
+                            <span v-if="l.is_done" class="text-green-500 text-lg">●</span>
+                        </Link>
+                    </nav>
                 </div>
-                <nav>
-                    <Link
-                        v-for="l in allLessons"
-                        :key="l.id"
-                        :href="route('lessons.show', [course.slug, l.slug])"
-                        class="flex justify-between items-center px-4 py-3 text-sm border-b border-gray-100 hover:bg-indigo-50 transition"
-                        :class="l.id === lesson.id ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-gray-700'"
-                        @click="isSidebarOpen = false"
-                    >
-                        <span>{{ l.title }}</span>
-                        <span v-if="l.is_done" class="text-green-500 text-lg">●</span>
-                    </Link>
-                </nav>
             </aside>
 
-            <!-- Main content -->
-            <div class="flex-1 overflow-y-auto bg-gray-50 p-8">
+            <!-- Main content: flows naturally, no height constraint -->
+            <div class="flex-1 bg-gray-50 p-8">
                 <div class="max-w-4xl mx-auto">
                     <!-- Video -->
                     <div class="aspect-video bg-black rounded-xl mb-8 overflow-hidden shadow-lg">
@@ -89,10 +98,8 @@ const submitComment = () => {
                         <h1 class="text-3xl font-extrabold mb-6">{{ lesson.title }}</h1>
                         <div class="prose prose-indigo max-w-none text-gray-700" v-html="lesson.content" />
                         <button
-                            @click="router.post(route('lessons.complete', lesson.slug))"
-                            :class="isCompleted
-                                ? 'bg-green-500 text-white'
-                                : 'bg-gray-200 text-gray-700'"
+                            @click="markComplete"
+                            :class="isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'"
                             class="mt-6 px-6 py-2 rounded-lg font-bold transition hover:opacity-90"
                         >
                             {{ isCompleted ? '✓ Completed' : 'Mark as Complete' }}
@@ -100,7 +107,7 @@ const submitComment = () => {
                     </div>
 
                     <!-- Comments -->
-                    <div class="mt-12 border-t pt-8">
+                    <div class="mt-12 border-t pt-8 pb-16">
                         <h3 class="text-xl font-bold mb-4">Discussion</h3>
 
                         <form @submit.prevent="submitComment" class="mb-8">

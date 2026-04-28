@@ -41,11 +41,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/instructor/courses/create', [CourseManagementController::class, 'create'])->name('courses.create');
         Route::post('/instructor/courses', [CourseManagementController::class, 'store'])->name('courses.store');
         Route::get('/instructor/courses/{course}/edit', [CourseManagementController::class, 'edit'])->name('courses.edit');
-        Route::put('/instructor/courses/{course}', [CourseManagementController::class, 'update'])->name('courses.update');
+        Route::post('/instructor/courses/{course}', [CourseManagementController::class, 'update'])->name('courses.update');
 
         // Lesson Management
         Route::get('/instructor/courses/{course}/lessons/create', [CourseManagementController::class, 'addLessons'])->name('courses.lessons.create');
         Route::post('/instructor/courses/{course}/lessons', [CourseManagementController::class, 'storeLesson'])->name('courses.lessons.store');
+        Route::put('/instructor/lessons/{lesson}', [CourseManagementController::class, 'updateLesson'])->name('lessons.update');
+        Route::delete('/instructor/lessons/{lesson}', [CourseManagementController::class, 'destroyLesson'])->name('lessons.destroy');
     });
 });
 

@@ -37,11 +37,6 @@ defineProps({
                                 </span>
 
                                 <template v-if="course.lessons && course.lessons.length > 0">
-                                    <Link v-if="$page.props.auth.user && $page.props.auth.user.is_instructor"
-                                        :href="route('courses.edit', course.id)"
-                                        class="text-xs text-gray-500 hover:text-indigo-600 underline">
-                                        Edit Course
-                                    </Link>
                                     <Link
                                         :href="route('lessons.show', { course: course.slug, lesson: course.lessons[0].slug })"
                                         class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">
@@ -52,6 +47,11 @@ defineProps({
                                 <template v-else>
                                     <span class="text-gray-400 text-sm italic">No lessons available</span>
                                 </template>
+                                <Link v-if="$page.props.auth.user && $page.props.auth.user.is_instructor"
+                                    :href="route('courses.edit', course.id)"
+                                    class="text-xs text-gray-500 hover:text-indigo-600 underline">
+                                    Edit Course
+                                </Link>
                             </div>
                         </div>
                     </div>
