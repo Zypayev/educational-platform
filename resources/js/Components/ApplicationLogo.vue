@@ -1,6 +1,6 @@
 <template>
     <img
-        src="/images/logo.png"
+        src="/images/Logo.png"
         alt="Logo"
         v-bind="$attrs"
     />
